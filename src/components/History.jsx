@@ -1,17 +1,18 @@
 import { history } from '../data/siteData'
 import SectionHeader from './SectionHeader'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 
-function TimelineItem({ item, index }) {
-  const isLeft = index % 2 === 0
+function TimelineItem({ item, index, isMobile }) {
+  const isLeft = !isMobile && index % 2 === 0
 
   return (
     <div
       className={`fade-up fade-up-${Math.min(index + 1, 5)}`}
       style={{
         display: 'flex',
-        justifyContent: isLeft ? 'flex-end' : 'flex-start',
-        paddingLeft: isLeft ? '0' : 'calc(50% + 2rem)',
-        paddingRight: isLeft ? 'calc(50% + 2rem)' : '0',
+        justifyContent: isMobile ? 'flex-start' : (isLeft ? 'flex-end' : 'flex-start'),
+        paddingLeft: isMobile ? '2.5rem' : (isLeft ? '0' : 'calc(50% + 2rem)'),
+        paddingRight: isMobile ? '0' : (isLeft ? 'calc(50% + 2rem)' : '0'),
         marginBottom: '2.5rem',
         position: 'relative',
       }}
@@ -20,7 +21,7 @@ function TimelineItem({ item, index }) {
       <div
         style={{
           width: '100%',
-          maxWidth: '340px',
+          maxWidth: isMobile ? '100%' : '340px',
           borderRadius: 'var(--radius)',
           border: '1px solid var(--color-border)',
           backgroundColor: 'var(--color-bg)',
@@ -37,7 +38,6 @@ function TimelineItem({ item, index }) {
           e.currentTarget.style.boxShadow = 'var(--shadow)'
         }}
       >
-        {/* 상단 컬러 보더 */}
         <div style={{
           height: '4px',
           background: item.isCurrent
@@ -46,7 +46,6 @@ function TimelineItem({ item, index }) {
         }} />
 
         <div style={{ padding: '1.5rem 1.75rem' }}>
-          {/* 날짜 */}
           <span style={{
             display: 'inline-block',
             fontSize: '0.72rem',
@@ -81,10 +80,10 @@ function TimelineItem({ item, index }) {
         </div>
       </div>
 
-      {/* 중앙 도트 */}
+      {/* 중앙/좌측 도트 */}
       <div style={{
         position: 'absolute',
-        left: 'calc(50% - 10px)',
+        left: isMobile ? '0' : 'calc(50% - 10px)',
         top: '1.75rem',
         width: '20px',
         height: '20px',
@@ -101,8 +100,10 @@ function TimelineItem({ item, index }) {
 }
 
 export default function History() {
+  const { isMobile } = useBreakpoint()
+
   return (
-    <section id="history" style={{ padding: '7rem 2rem', backgroundColor: 'var(--color-bg)' }}>
+    <section id="history" style={{ padding: isMobile ? '5rem 1.25rem' : '7rem 2rem', backgroundColor: 'var(--color-bg)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <SectionHeader
           tag="Our Journey"
@@ -110,21 +111,20 @@ export default function History() {
           subtitle="함께 이야기하고, 함께 실행해온 발자취입니다."
         />
 
-        {/* 타임라인 */}
         <div style={{ position: 'relative', marginTop: '4rem' }}>
-          {/* 중앙 세로선 */}
+          {/* 세로선 */}
           <div style={{
             position: 'absolute',
-            left: '50%',
+            left: isMobile ? '9px' : '50%',
             top: 0,
             bottom: 0,
             width: '1.5px',
             background: 'linear-gradient(to bottom, var(--color-accent-light), var(--color-border), var(--color-secondary-light))',
-            transform: 'translateX(-50%)',
+            transform: isMobile ? 'none' : 'translateX(-50%)',
           }} />
 
           {history.map((item, i) => (
-            <TimelineItem key={i} item={item} index={i} />
+            <TimelineItem key={i} item={item} index={i} isMobile={isMobile} />
           ))}
         </div>
       </div>

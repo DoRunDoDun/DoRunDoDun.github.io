@@ -1,5 +1,6 @@
 import { members } from '../data/siteData'
 import SectionHeader from './SectionHeader'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 
 function Avatar({ name }) {
   const initials = name
@@ -54,7 +55,6 @@ function MemberCard({ member, delay }) {
         e.currentTarget.style.boxShadow = 'var(--shadow)'
       }}
     >
-      {/* 상단 오렌지 보더 */}
       <div style={{ height: '4px', width: '100%', background: 'linear-gradient(90deg, var(--color-secondary) 0%, #f4a44a 100%)' }} />
 
       <div style={{ padding: '2rem 1.75rem', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
@@ -150,8 +150,10 @@ function MemberCard({ member, delay }) {
 }
 
 export default function Members() {
+  const { isMobile } = useBreakpoint()
+
   return (
-    <section id="members" style={{ padding: '7rem 2rem', backgroundColor: 'var(--color-bg-secondary)' }}>
+    <section id="members" style={{ padding: isMobile ? '5rem 1.25rem' : '7rem 2rem', backgroundColor: 'var(--color-bg-secondary)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <SectionHeader
           tag="Our Team"
@@ -160,8 +162,8 @@ export default function Members() {
         />
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '1.5rem',
+          gridTemplateColumns: `repeat(auto-fit, minmax(${isMobile ? '100%' : '240px'}, 1fr))`,
+          gap: '1.25rem',
           marginTop: '3.5rem',
         }}>
           {members.map((member, i) => (

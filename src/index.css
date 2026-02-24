@@ -66,6 +66,12 @@ img {
 .fade-up-4 { animation-delay: 0.35s; }
 .fade-up-5 { animation-delay: 0.45s; }
 
+@media (max-width: 767px) {
+  main, footer {
+    padding-bottom: 72px;
+  }
+}
+
 @keyframes scrollPulse {
   0%, 100% { opacity: 0.3; transform: scaleY(0.8); transform-origin: top; }
   50%       { opacity: 1;   transform: scaleY(1);   transform-origin: top; }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 
 const sections = [
   { id: 'hero',     label: 'Home',    num: '01' },
@@ -8,12 +9,13 @@ const sections = [
   { id: 'contact',  label: '연락처',   num: '05' },
 ]
 
-const HANDLE_W = 40   // 항상 보이는 핸들 너비
-const LABEL_W  = 112  // 숨겨진 라벨 영역 너비
+const HANDLE_W = 40
+const LABEL_W  = 112
 
 export default function FloatNavB() {
   const [active,   setActive]   = useState('hero')
   const [hovering, setHovering] = useState(null)
+  const { isMobile } = useBreakpoint()
 
   useEffect(() => {
     const onScroll = () => {
@@ -30,6 +32,67 @@ export default function FloatNavB() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // 모바일: 하단 고정 네비게이션
+  if (isMobile) {
+    return (
+      <nav style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 200,
+        backgroundColor: 'rgba(255, 255, 255, 0.92)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderTop: '1px solid var(--color-border)',
+        display: 'flex',
+        justifyContent: 'space-around',
+        padding: '0.6rem 0.5rem',
+        paddingBottom: 'calc(0.6rem + env(safe-area-inset-bottom))',
+      }}>
+        {sections.map(({ id, label }) => {
+          const isActive = active === id
+          return (
+            <a
+              key={id}
+              href={`#${id}`}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '3px',
+                padding: '0.3rem 0.6rem',
+                borderRadius: '8px',
+                backgroundColor: isActive ? 'var(--color-accent-light)' : 'transparent',
+                transition: 'background-color 0.2s',
+                minWidth: '52px',
+              }}
+            >
+              <div style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                backgroundColor: isActive ? 'var(--color-secondary)' : 'rgba(100,116,139,0.4)',
+                boxShadow: isActive ? '0 0 0 3px rgba(232,132,26,0.2)' : 'none',
+                transition: 'all 0.2s',
+              }} />
+              <span style={{
+                fontSize: '0.65rem',
+                fontWeight: isActive ? 700 : 500,
+                color: isActive ? 'var(--color-accent)' : 'var(--color-text-muted)',
+                letterSpacing: '0.01em',
+                whiteSpace: 'nowrap',
+              }}>
+                {label}
+              </span>
+            </a>
+          )
+        })}
+      </nav>
+    )
+  }
+
+  // 데스크탑: 우측 슬라이드 탭
   return (
     <nav style={{
       position: 'fixed',
@@ -41,7 +104,7 @@ export default function FloatNavB() {
       flexDirection: 'column',
       gap: '0.5rem',
     }}>
-      {sections.map(({ id, label, num }, idx) => {
+      {sections.map(({ id, label, num }) => {
         const isActive = active === id
         const isHover  = hovering === id
         const show     = isActive || isHover
@@ -60,12 +123,8 @@ export default function FloatNavB() {
               overflow: 'hidden',
               border: '1px solid',
               borderRight: 'none',
-              borderColor: isActive
-                ? 'var(--color-accent)'
-                : 'rgba(226, 232, 240, 0.9)',
-              backgroundColor: isActive
-                ? 'var(--color-accent)'
-                : 'rgba(255, 255, 255, 0.88)',
+              borderColor: isActive ? 'var(--color-accent)' : 'rgba(226, 232, 240, 0.9)',
+              backgroundColor: isActive ? 'var(--color-accent)' : 'rgba(255, 255, 255, 0.88)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               boxShadow: isActive
@@ -73,16 +132,12 @@ export default function FloatNavB() {
                 : isHover
                   ? '0 4px 14px rgba(29, 63, 110, 0.1)'
                   : '0 2px 6px rgba(29, 63, 110, 0.06)',
-              /* 슬라이드: 라벨 영역만큼 오른쪽으로 숨김 */
-              transform: show
-                ? 'translateX(0)'
-                : `translateX(${LABEL_W}px)`,
-              transition: `transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s`,
+              transform: show ? 'translateX(0)' : `translateX(${LABEL_W}px)`,
+              transition: 'transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s',
               textDecoration: 'none',
               cursor: 'pointer',
             }}
           >
-            {/* 라벨 영역 */}
             <div style={{
               width: `${LABEL_W}px`,
               flexShrink: 0,
@@ -103,7 +158,6 @@ export default function FloatNavB() {
               </span>
             </div>
 
-            {/* 핸들 영역 (항상 노출) */}
             <div style={{
               width: `${HANDLE_W}px`,
               flexShrink: 0,
@@ -117,28 +171,19 @@ export default function FloatNavB() {
                 ? '1px solid rgba(255,255,255,0.2)'
                 : '1px solid var(--color-border)',
             }}>
-              {/* 오렌지 액센트 도트 */}
               <div style={{
                 width: isActive ? '6px' : '4px',
                 height: isActive ? '6px' : '4px',
                 borderRadius: '50%',
-                backgroundColor: isActive
-                  ? 'var(--color-secondary)'
-                  : 'rgba(100, 116, 139, 0.35)',
-                boxShadow: isActive
-                  ? '0 0 0 3px rgba(232, 132, 26, 0.25)'
-                  : 'none',
+                backgroundColor: isActive ? 'var(--color-secondary)' : 'rgba(100, 116, 139, 0.35)',
+                boxShadow: isActive ? '0 0 0 3px rgba(232, 132, 26, 0.25)' : 'none',
                 transition: 'all 0.25s',
               }} />
-
-              {/* 섹션 번호 */}
               <span style={{
                 fontSize: '0.62rem',
                 fontWeight: 700,
                 letterSpacing: '0.04em',
-                color: isActive
-                  ? 'rgba(255,255,255,0.7)'
-                  : 'rgba(100, 116, 139, 0.5)',
+                color: isActive ? 'rgba(255,255,255,0.7)' : 'rgba(100, 116, 139, 0.5)',
                 lineHeight: 1,
                 transition: 'color 0.2s',
               }}>

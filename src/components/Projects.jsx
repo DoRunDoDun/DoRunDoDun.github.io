@@ -1,5 +1,6 @@
 import { projects } from '../data/siteData'
 import SectionHeader from './SectionHeader'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 
 function TechBadge({ label }) {
   return (
@@ -164,8 +165,10 @@ function ProjectCard({ project, delay }) {
 }
 
 export default function Projects() {
+  const { isMobile } = useBreakpoint()
+
   return (
-    <section id="projects" style={{ padding: '7rem 2rem', backgroundColor: 'var(--color-bg)' }}>
+    <section id="projects" style={{ padding: isMobile ? '5rem 1.25rem' : '7rem 2rem', backgroundColor: 'var(--color-bg)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <SectionHeader
           tag="Our Work"
@@ -174,8 +177,8 @@ export default function Projects() {
         />
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '1.5rem',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '1.25rem',
           marginTop: '3.5rem',
         }}>
           {projects.map((project, i) => (

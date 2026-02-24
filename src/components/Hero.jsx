@@ -1,7 +1,10 @@
 import { teamInfo, members, projects } from '../data/siteData'
 import logoSrc from '/logo.png'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 
 export default function Hero() {
+  const { isMobile, isTablet } = useBreakpoint()
+
   return (
     <section
       id="hero"
@@ -12,7 +15,7 @@ export default function Hero() {
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        padding: '7rem 2rem 6rem',
+        padding: isMobile ? '6rem 1.25rem 5rem' : '7rem 2rem 6rem',
         position: 'relative',
         overflow: 'hidden',
         backgroundColor: '#f7f9fc',
@@ -23,24 +26,24 @@ export default function Hero() {
       {/* 오렌지 글로우 - 우측 상단 */}
       <div style={{
         position: 'absolute',
-        width: '700px',
-        height: '700px',
+        width: isMobile ? '400px' : '700px',
+        height: isMobile ? '400px' : '700px',
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(232, 132, 26, 0.09) 0%, transparent 65%)',
-        top: '-250px',
-        right: '-180px',
+        top: isMobile ? '-150px' : '-250px',
+        right: isMobile ? '-150px' : '-180px',
         pointerEvents: 'none',
       }} />
 
       {/* 네이비 글로우 - 좌측 하단 */}
       <div style={{
         position: 'absolute',
-        width: '600px',
-        height: '600px',
+        width: isMobile ? '300px' : '600px',
+        height: isMobile ? '300px' : '600px',
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(29, 63, 110, 0.07) 0%, transparent 65%)',
-        bottom: '-200px',
-        left: '-150px',
+        bottom: isMobile ? '-100px' : '-200px',
+        left: isMobile ? '-100px' : '-150px',
         pointerEvents: 'none',
       }} />
 
@@ -50,7 +53,7 @@ export default function Hero() {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        fontSize: 'clamp(90px, 17vw, 200px)',
+        fontSize: 'clamp(60px, 17vw, 200px)',
         fontWeight: 900,
         color: 'var(--color-accent)',
         opacity: 0.032,
@@ -64,11 +67,11 @@ export default function Hero() {
       </div>
 
       {/* 컨텐츠 */}
-      <div style={{ maxWidth: '780px', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: '780px', position: 'relative', zIndex: 1, width: '100%' }}>
 
         {/* 로고 + 동심원 링 */}
-        <div className="fade-up fade-up-1" style={{ position: 'relative', display: 'inline-block', marginBottom: '2.75rem' }}>
-          {[220, 170, 130].map((size, i) => (
+        <div className="fade-up fade-up-1" style={{ position: 'relative', display: 'inline-block', marginBottom: isMobile ? '2rem' : '2.75rem' }}>
+          {!isMobile && [220, 170, 130].map((size, i) => (
             <div key={i} style={{
               position: 'absolute',
               width: `${size}px`,
@@ -84,7 +87,7 @@ export default function Hero() {
           <img
             src={logoSrc}
             alt="DoRunDoDun"
-            style={{ height: '100px', width: 'auto', position: 'relative', zIndex: 1 }}
+            style={{ height: isMobile ? '72px' : '100px', width: 'auto', position: 'relative', zIndex: 1 }}
           />
         </div>
 
@@ -99,9 +102,9 @@ export default function Hero() {
             marginBottom: '1.75rem',
           }}
         >
-          <div style={{ flex: 1, maxWidth: '72px', height: '1.5px', background: 'linear-gradient(to left, var(--color-secondary), transparent)', opacity: 0.7 }} />
+          <div style={{ flex: 1, maxWidth: isMobile ? '40px' : '72px', height: '1.5px', background: 'linear-gradient(to left, var(--color-secondary), transparent)', opacity: 0.7 }} />
           <span style={{
-            fontSize: '0.78rem',
+            fontSize: isMobile ? '0.7rem' : '0.78rem',
             fontWeight: 700,
             letterSpacing: '0.13em',
             textTransform: 'uppercase',
@@ -110,18 +113,18 @@ export default function Hero() {
           }}>
             {teamInfo.slogan}
           </span>
-          <div style={{ flex: 1, maxWidth: '72px', height: '1.5px', background: 'linear-gradient(to right, var(--color-secondary), transparent)', opacity: 0.7 }} />
+          <div style={{ flex: 1, maxWidth: isMobile ? '40px' : '72px', height: '1.5px', background: 'linear-gradient(to right, var(--color-secondary), transparent)', opacity: 0.7 }} />
         </div>
 
         {/* 설명 */}
         <p
           className="fade-up fade-up-3"
           style={{
-            fontSize: '1.08rem',
+            fontSize: isMobile ? '0.95rem' : '1.08rem',
             color: 'var(--color-text-muted)',
             lineHeight: 1.9,
             maxWidth: '520px',
-            margin: '0 auto 3rem',
+            margin: '0 auto 2.5rem',
           }}
         >
           {teamInfo.description.split('\n').map((line, i) => (
@@ -132,18 +135,17 @@ export default function Hero() {
         {/* CTA 버튼 */}
         <div
           className="fade-up fade-up-4"
-          style={{ display: 'flex', gap: '0.875rem', justifyContent: 'center', flexWrap: 'wrap' }}
+          style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}
         >
           <a
             href="#members"
             style={{
-              padding: '0.9rem 2.25rem',
+              padding: isMobile ? '0.8rem 1.75rem' : '0.9rem 2.25rem',
               backgroundColor: 'var(--color-secondary)',
               color: '#fff',
               borderRadius: '8px',
               fontWeight: 700,
               fontSize: '0.92rem',
-              letterSpacing: '0.01em',
               transition: 'all 0.2s',
               boxShadow: '0 4px 18px rgba(232, 132, 26, 0.4)',
             }}
@@ -165,7 +167,7 @@ export default function Hero() {
             target="_blank"
             rel="noopener noreferrer"
             style={{
-              padding: '0.9rem 2.25rem',
+              padding: isMobile ? '0.8rem 1.75rem' : '0.9rem 2.25rem',
               border: '2px solid var(--color-accent)',
               borderRadius: '8px',
               fontWeight: 700,
@@ -197,7 +199,7 @@ export default function Hero() {
             display: 'flex',
             gap: '1rem',
             justifyContent: 'center',
-            marginTop: '4.5rem',
+            marginTop: isMobile ? '3rem' : '4.5rem',
             flexWrap: 'wrap',
           }}
         >
@@ -208,7 +210,7 @@ export default function Hero() {
             <div
               key={stat.label}
               style={{
-                padding: '1.25rem 2.5rem',
+                padding: isMobile ? '1rem 1.75rem' : '1.25rem 2.5rem',
                 backgroundColor: 'rgba(255, 255, 255, 0.75)',
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
@@ -216,11 +218,11 @@ export default function Hero() {
                 borderRadius: '14px',
                 boxShadow: '0 4px 16px rgba(15, 31, 56, 0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
                 textAlign: 'center',
-                minWidth: '140px',
+                minWidth: isMobile ? '120px' : '140px',
               }}
             >
               <div style={{
-                fontSize: '2.1rem',
+                fontSize: isMobile ? '1.75rem' : '2.1rem',
                 fontWeight: 800,
                 color: 'var(--color-accent)',
                 letterSpacing: '-0.04em',
@@ -244,29 +246,31 @@ export default function Hero() {
       </div>
 
       {/* 스크롤 인디케이터 */}
-      <div style={{
-        position: 'absolute',
-        bottom: '2.25rem',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '6px',
-        opacity: 0.4,
-        animation: 'fadeUp 1s ease 1.2s both',
-      }}>
-        <div style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
-          Scroll
-        </div>
+      {!isMobile && (
         <div style={{
-          width: '1.5px',
-          height: '32px',
-          background: 'linear-gradient(to bottom, var(--color-accent), transparent)',
-          borderRadius: '2px',
-          animation: 'scrollPulse 1.8s ease-in-out infinite',
-        }} />
-      </div>
+          position: 'absolute',
+          bottom: '2.25rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '6px',
+          opacity: 0.4,
+          animation: 'fadeUp 1s ease 1.2s both',
+        }}>
+          <div style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
+            Scroll
+          </div>
+          <div style={{
+            width: '1.5px',
+            height: '32px',
+            background: 'linear-gradient(to bottom, var(--color-accent), transparent)',
+            borderRadius: '2px',
+            animation: 'scrollPulse 1.8s ease-in-out infinite',
+          }} />
+        </div>
+      )}
     </section>
   )
 }

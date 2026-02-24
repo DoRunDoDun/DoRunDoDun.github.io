@@ -1,11 +1,14 @@
 import { teamInfo } from '../data/siteData'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 
 export default function Contact() {
+  const { isMobile } = useBreakpoint()
+
   return (
     <section
       id="contact"
       style={{
-        padding: '7rem 2rem',
+        padding: isMobile ? '5rem 1.25rem' : '7rem 2rem',
         backgroundColor: 'var(--color-accent)',
         backgroundImage: 'radial-gradient(rgba(255,255,255,0.05) 1.5px, transparent 1.5px)',
         backgroundSize: '28px 28px',
