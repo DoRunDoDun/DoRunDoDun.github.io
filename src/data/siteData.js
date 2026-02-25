@@ -10,12 +10,12 @@ export const teamInfo = {
 
 export const members = [
   {
-    name: '홍길동',
+    name: '김상엽',
     role: 'Frontend Developer',
-    bio: 'React와 UI/UX에 관심이 많은 개발자입니다.',
-    avatar: null, // 이미지 URL을 넣거나 null로 두면 이니셜 표시
-    github: 'https://github.com/',
-    email: 'member1@example.com',
+    bio: '레이어 경계를 명확히 지키는 아키텍처 설계를 가장 중요한 기준으로 두고, 확장성과 유지보수성이 높은 프론트엔드 구조를 만드는 데 집중합니다.',
+    avatar: '/images/kim-sangyeop-profile.jpeg', // 이미지 URL을 넣거나 null로 두면 이니셜 표시
+    github: 'https://github.com/tkddu1591',
+    email: 'tkddu1591@gmail.com',
   },
   {
     name: '김철수',
