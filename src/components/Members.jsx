@@ -88,6 +88,11 @@ function MemberCard({ member, delay }) {
           lineHeight: 1.75,
           marginBottom: '1.75rem',
           flex: 1,
+          width: '100%',
+          textAlign: 'center',
+          wordBreak: 'keep-all',
+          overflowWrap: 'break-word',
+          whiteSpace: 'normal',
         }}>
           {member.bio}
         </p>
