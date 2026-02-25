@@ -18,12 +18,12 @@ export const members = [
     email: 'tkddu1591@gmail.com',
   },
   {
-    name: '김철수',
-    role: 'Backend Developer',
-    bio: 'Node.js와 데이터베이스 설계를 담당합니다.',
-    avatar: null,
-    github: 'https://github.com/',
-    email: 'member2@example.com',
+    name: '고명성',
+    role: 'AI Agent Developer',
+    bio: 'AI 시대의 새로운 가능성을 탐구하며, 실질적인 문제 해결을 위한 지능형 에이전트 개발에 집중합니다.',
+    avatar: 'https://avatars.githubusercontent.com/u/75971566?v=4',
+    github: 'https://github.com/thingk0',
+    email: 'audtjd9080@naver.com',
   },
   {
     name: '이영희',
