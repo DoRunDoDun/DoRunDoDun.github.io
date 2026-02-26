@@ -12,7 +12,7 @@ export const members = [
   {
     name: '김상엽',
     role: 'Frontend Developer',
-    bio: '레이어 경계를 명확히 지키는 아키텍처 설계를 가장 중요한 기준으로 두고, 확장성과 유지보수성이 높은 프론트엔드 구조를 만드는 데 집중합니다.',
+    bio: '레이어 경계를 명확히 지키는 아키텍처 설계를 가장 중요한 기준으로 두고,\n확장성과 유지보수성이 높은\n프론트엔드 구조를 만드는 데 집중합니다.',
     avatar: '/images/kim-sangyeop-profile.jpeg', // 이미지 URL을 넣거나 null로 두면 이니셜 표시
     github: 'https://github.com/tkddu1591',
     email: 'tkddu1591@gmail.com',
@@ -20,18 +20,18 @@ export const members = [
   {
     name: '고명성',
     role: 'AI Agent Developer',
-    bio: 'AI 시대의 새로운 가능성을 탐구하며, 실질적인 문제 해결을 위한 지능형 에이전트 개발에 집중합니다.',
+    bio: 'AI 시대의 새로운 가능성을 탐구하며,\n실질적인 문제 해결을 위한\n지능형 에이전트 개발에 집중합니다.',
     avatar: 'https://avatars.githubusercontent.com/u/75971566?v=4',
     github: 'https://github.com/thingk0',
     email: 'audtjd9080@naver.com',
   },
   {
-    name: '이영희',
-    role: 'Full Stack Developer',
-    bio: '프론트엔드부터 백엔드까지 전방위로 활동합니다.',
-    avatar: null,
-    github: 'https://github.com/',
-    email: 'member3@example.com',
+    name: '당현아',
+    role: 'Backend Developer',
+    bio: '장기 운영과 가독성을 기준으로 코드를 설계하며,\n팀 전체가 신뢰할 수 있는\n백엔드 구조를 만드는 데 집중합니다.',
+    avatar: 'https://avatars.githubusercontent.com/u/45550607?v=4',
+    github: 'https://github.com/hadevyi',
+    email: 'hadevyi@gmail.com',
   },
 ]
 

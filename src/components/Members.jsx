@@ -92,7 +92,7 @@ function MemberCard({ member, delay }) {
           textAlign: 'center',
           wordBreak: 'keep-all',
           overflowWrap: 'break-word',
-          whiteSpace: 'normal',
+          whiteSpace: 'pre-wrap',
         }}>
           {member.bio}
         </p>
