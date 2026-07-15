@@ -8,6 +8,9 @@ on:
   issue_comment:
     types:
       - created
+  workflow_run:
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -17,7 +20,15 @@ jobs:
   notify-discord:
     name: Send issue activity to Discord
     runs-on: ubuntu-latest
-    if: ${{ !github.event.issue.pull_request }}
+    if: >-
+      ${{
+        (github.event_name == 'workflow_run' &&
+          github.event.workflow_run.conclusion == 'failure' &&
+          github.event.workflow_run.name != 'Notify Discord on issue activity' &&
+          github.event.workflow_run.head_branch == 'main')
+        ||
+        (github.event_name != 'workflow_run' && !github.event.issue.pull_request)
+      }}
     steps:
       - name: Post issue activity notification
         uses: actions/github-script@v7
@@ -45,15 +56,7 @@ jobs:
 
             const eventName = context.eventName;
             const action = context.payload.action;
-            const issue = context.payload.issue;
-            const comment = eventName === 'issue_comment' ? context.payload.comment : null;
-            const isComment = eventName === 'issue_comment';
-            const actor = context.payload.sender?.login
-              ?? comment?.user?.login
-              ?? issue.user?.login
-              ?? 'unknown';
-            const targetUrl = comment?.html_url ?? issue.html_url;
-            const sourceBody = comment?.body ?? issue.body ?? '';
+            const isWorkflowRun = eventName === 'workflow_run';
 
             const truncate = (value, maxLength) => {
               if (!value) {
@@ -78,65 +81,125 @@ jobs:
               return truncate(lines.slice(0, 2).join(' / '), 300);
             };
 
-            const githubMentions = isComment
-              ? [...(comment.body || '').matchAll(/(^|\s)@([A-Za-z0-9-]+)/g)].map((match) => match[2])
-              : [];
-            const uniqueMentions = [...new Set(
-              githubMentions
-                .map((login) => userMap[login])
-                .filter(Boolean)
-                .map((id) => `<@${id}>`)
-            )];
-            const mentionLine = uniqueMentions.length > 0 ? `${uniqueMentions.join(' ')}\n` : '';
+            let message;
+            let embed;
 
-            const eventMessage = isComment
-              ? '새 이슈 댓글이 등록되었어요.'
-              : action === 'opened'
-                ? '새 이슈가 등록되었어요.'
-                : '이슈가 종료되었어요.';
+            if (isWorkflowRun) {
+              const run = context.payload.workflow_run;
+              const actor = run.triggering_actor?.login
+                ?? run.actor?.login
+                ?? 'unknown';
 
-            const fields = [
-              {
-                name: '작성자',
-                value: `@${actor}`,
-                inline: true
-              },
-              {
-                name: '레포',
-                value: truncate(process.env.GITHUB_REPOSITORY, 200),
-                inline: true
-              },
-              {
-                name: '이슈 링크',
-                value: truncate(issue.html_url, 1000),
-                inline: false
-              },
-              {
-                name: isComment ? '댓글 내용' : '이슈 내용',
-                value: buildPreview(sourceBody),
-                inline: false
+              message = 'main 브랜치의 GitHub Actions가 실패했어요.';
+              embed = {
+                title: truncate(`[CI 실패] ${run.name}`, 250),
+                url: run.html_url,
+                color: 10038562,
+                fields: [
+                  {
+                    name: '실행자',
+                    value: `@${actor}`,
+                    inline: true
+                  },
+                  {
+                    name: '레포',
+                    value: truncate(process.env.GITHUB_REPOSITORY, 200),
+                    inline: true
+                  },
+                  {
+                    name: '브랜치',
+                    value: truncate(run.head_branch || 'unknown', 200),
+                    inline: true
+                  },
+                  {
+                    name: '커밋',
+                    value: `\`${(run.head_sha || '').slice(0, 7)}\`\`,
+                    inline: true
+                  },
+                  {
+                    name: '실패한 실행',
+                    value: truncate(run.html_url, 1000),
+                    inline: false
+                  }
+                ],
+                timestamp: run.updated_at || new Date().toISOString()
+              };
+            } else {
+              const issue = context.payload.issue;
+              const comment = eventName === 'issue_comment'
+                ? context.payload.comment
+                : null;
+              const isComment = eventName === 'issue_comment';
+              const actor = context.payload.sender?.login
+                ?? comment?.user?.login
+                ?? issue.user?.login
+                ?? 'unknown';
+              const targetUrl = comment?.html_url ?? issue.html_url;
+              const sourceBody = comment?.body ?? issue.body ?? '';
+
+              const githubMentions = isComment
+                ? [...(comment.body || '').matchAll(/(^|\s)@([A-Za-z0-9-]+)/g)].map((match) => match[2])
+                : [];
+              const uniqueMentions = [...new Set(
+                githubMentions
+                  .map((login) => userMap[login])
+                  .filter(Boolean)
+                  .map((id) => `<@${id}>`)
+              )];
+              const mentionLine = uniqueMentions.length > 0
+                ? `${uniqueMentions.join(' ')}\n`
+                : '';
+
+              message = isComment
+                ? '새 이슈 댓글이 등록되었어요.'
+                : action === 'opened'
+                  ? '새 이슈가 등록되었어요.'
+                  : '이슈가 종료되었어요.';
+
+              const fields = [
+                {
+                  name: '작성자',
+                  value: `@${actor}`,
+                  inline: true
+                },
+                {
+                  name: '레포',
+                  value: truncate(process.env.GITHUB_REPOSITORY, 200),
+                  inline: true
+                },
+                {
+                  name: '이슈 링크',
+                  value: truncate(issue.html_url, 1000),
+                  inline: false
+                },
+                {
+                  name: isComment ? '댓글 내용' : '이슈 내용',
+                  value: buildPreview(sourceBody),
+                  inline: false
+                }
+              ];
+
+              if (!isComment) {
+                fields.push({
+                  name: '상태',
+                  value: action === 'closed' ? 'closed' : 'open',
+                  inline: true
+                });
               }
-            ];
 
-            if (!isComment) {
-              fields.push({
-                name: '상태',
-                value: action === 'closed' ? 'closed' : 'open',
-                inline: true
-              });
+              embed = {
+                title: truncate(`#${issue.number} ${issue.title}`, 250),
+                url: targetUrl,
+                color: action === 'closed' ? 10038562 : 5814783,
+                fields,
+                timestamp: new Date().toISOString()
+              };
+              message = `${mentionLine}${message}`;
             }
 
             const payload = {
-              content: `${mentionLine}${eventMessage}`,
-              embeds: [
-                {
-                  title: truncate(`#${issue.number} ${issue.title}`, 250),
-                  url: targetUrl,
-                  color: action === 'closed' ? 10038562 : 5814783,
-                  fields,
-                  timestamp: new Date().toISOString()
-                }
-              ]
+              content: message,
+              embeds: [embed]
             };
 
             const response = await fetch(webhookUrl, {
