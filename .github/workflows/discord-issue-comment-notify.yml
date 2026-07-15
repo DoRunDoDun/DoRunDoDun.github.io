@@ -1,0 +1,126 @@
+name: Notify Discord on issue comments
+
+on:
+  issue_comment:
+    types:
+      - created
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  notify-discord:
+    name: Send issue comment to Discord
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.issue.pull_request }}
+    steps:
+      - name: Post comment notification
+        uses: actions/github-script@v7
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_USER_MAP_JSON: ${{ vars.DISCORD_USER_MAP_JSON }}
+        with:
+          script: |
+            const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+            if (!webhookUrl) {
+              core.setFailed('Missing DISCORD_WEBHOOK_URL secret.');
+              return;
+            }
+
+            let userMap = {};
+            const rawMap = process.env.DISCORD_USER_MAP_JSON;
+            if (rawMap) {
+              try {
+                userMap = JSON.parse(rawMap);
+              } catch (error) {
+                core.setFailed(`DISCORD_USER_MAP_JSON is not valid JSON: ${error.message}`);
+                return;
+              }
+            }
+
+            const issue = context.payload.issue;
+            const comment = context.payload.comment;
+            const commentAuthor = comment.user.login;
+            const truncate = (value, maxLength) => {
+              if (!value) {
+                return '';
+              }
+
+              return value.length > maxLength
+                ? `${value.slice(0, maxLength - 3)}...`
+                : value;
+            };
+            const buildCommentPreview = (body) => {
+              const lines = (body || '')
+                .split('\n')
+                .map((line) => line.trim())
+                .filter(Boolean);
+
+              if (lines.length === 0) {
+                return '(빈 댓글)';
+              }
+
+              const preview = lines.slice(0, 2).join(' / ');
+              return truncate(preview, 300);
+            };
+            const githubMentions = [...comment.body.matchAll(/(^|\\s)@([A-Za-z0-9-]+)/g)]
+              .map((match) => match[2]);
+            const uniqueMentions = [...new Set(
+              githubMentions
+                .map((login) => userMap[login])
+                .filter(Boolean)
+                .map((id) => `<@${id}>`)
+            )];
+            const mentionLine = uniqueMentions.length > 0 ? `${uniqueMentions.join(' ')}\n` : '';
+            const trimmedTitle = truncate(`#${issue.number} ${issue.title}`, 250);
+            const trimmedBody = buildCommentPreview(comment.body);
+            const trimmedRepository = truncate(process.env.GITHUB_REPOSITORY, 200);
+            const trimmedIssueUrl = truncate(issue.html_url, 1000);
+
+            const payload = {
+              content: `${mentionLine}새 이슈 댓글이 등록되었어요.`,
+              embeds: [
+                {
+                  title: trimmedTitle,
+                  url: comment.html_url,
+                  color: 5814783,
+                  fields: [
+                    {
+                      name: '작성자',
+                      value: `@${commentAuthor}`,
+                      inline: true
+                    },
+                    {
+                      name: '레포',
+                      value: trimmedRepository,
+                      inline: true
+                    },
+                    {
+                      name: '이슈 링크',
+                      value: trimmedIssueUrl,
+                      inline: false
+                    },
+                    {
+                      name: '댓글 내용',
+                      value: trimmedBody,
+                      inline: false
+                    }
+                  ],
+                  timestamp: comment.created_at
+                }
+              ]
+            };
+
+            const response = await fetch(webhookUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+              const responseText = await response.text();
+              core.setFailed(`Discord webhook request failed (${response.status}): ${responseText}`);
+            }
