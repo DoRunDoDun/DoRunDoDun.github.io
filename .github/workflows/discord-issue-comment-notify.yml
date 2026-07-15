@@ -1,6 +1,10 @@
-name: Notify Discord on issue comments
+name: Notify Discord on issue activity
 
 on:
+  issues:
+    types:
+      - opened
+      - closed
   issue_comment:
     types:
       - created
@@ -11,11 +15,11 @@ permissions:
 
 jobs:
   notify-discord:
-    name: Send issue comment to Discord
+    name: Send issue activity to Discord
     runs-on: ubuntu-latest
     if: ${{ !github.event.issue.pull_request }}
     steps:
-      - name: Post comment notification
+      - name: Post issue activity notification
         uses: actions/github-script@v7
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -39,9 +43,18 @@ jobs:
               }
             }
 
+            const eventName = context.eventName;
+            const action = context.payload.action;
             const issue = context.payload.issue;
-            const comment = context.payload.comment;
-            const commentAuthor = comment.user.login;
+            const comment = eventName === 'issue_comment' ? context.payload.comment : null;
+            const isComment = eventName === 'issue_comment';
+            const actor = context.payload.sender?.login
+              ?? comment?.user?.login
+              ?? issue.user?.login
+              ?? 'unknown';
+            const targetUrl = comment?.html_url ?? issue.html_url;
+            const sourceBody = comment?.body ?? issue.body ?? '';
+
             const truncate = (value, maxLength) => {
               if (!value) {
                 return '';
@@ -51,21 +64,23 @@ jobs:
                 ? `${value.slice(0, maxLength - 3)}...`
                 : value;
             };
-            const buildCommentPreview = (body) => {
+
+            const buildPreview = (body) => {
               const lines = (body || '')
                 .split('\n')
                 .map((line) => line.trim())
                 .filter(Boolean);
 
               if (lines.length === 0) {
-                return '(빈 댓글)';
+                return '(내용 없음)';
               }
 
-              const preview = lines.slice(0, 2).join(' / ');
-              return truncate(preview, 300);
+              return truncate(lines.slice(0, 2).join(' / '), 300);
             };
-            const githubMentions = [...comment.body.matchAll(/(^|\\s)@([A-Za-z0-9-]+)/g)]
-              .map((match) => match[2]);
+
+            const githubMentions = isComment
+              ? [...(comment.body || '').matchAll(/(^|\s)@([A-Za-z0-9-]+)/g)].map((match) => match[2])
+              : [];
             const uniqueMentions = [...new Set(
               githubMentions
                 .map((login) => userMap[login])
@@ -73,41 +88,53 @@ jobs:
                 .map((id) => `<@${id}>`)
             )];
             const mentionLine = uniqueMentions.length > 0 ? `${uniqueMentions.join(' ')}\n` : '';
-            const trimmedTitle = truncate(`#${issue.number} ${issue.title}`, 250);
-            const trimmedBody = buildCommentPreview(comment.body);
-            const trimmedRepository = truncate(process.env.GITHUB_REPOSITORY, 200);
-            const trimmedIssueUrl = truncate(issue.html_url, 1000);
+
+            const eventMessage = isComment
+              ? '새 이슈 댓글이 등록되었어요.'
+              : action === 'opened'
+                ? '새 이슈가 등록되었어요.'
+                : '이슈가 종료되었어요.';
+
+            const fields = [
+              {
+                name: '작성자',
+                value: `@${actor}`,
+                inline: true
+              },
+              {
+                name: '레포',
+                value: truncate(process.env.GITHUB_REPOSITORY, 200),
+                inline: true
+              },
+              {
+                name: '이슈 링크',
+                value: truncate(issue.html_url, 1000),
+                inline: false
+              },
+              {
+                name: isComment ? '댓글 내용' : '이슈 내용',
+                value: buildPreview(sourceBody),
+                inline: false
+              }
+            ];
+
+            if (!isComment) {
+              fields.push({
+                name: '상태',
+                value: action === 'closed' ? 'closed' : 'open',
+                inline: true
+              });
+            }
 
             const payload = {
-              content: `${mentionLine}새 이슈 댓글이 등록되었어요.`,
+              content: `${mentionLine}${eventMessage}`,
               embeds: [
                 {
-                  title: trimmedTitle,
-                  url: comment.html_url,
-                  color: 5814783,
-                  fields: [
-                    {
-                      name: '작성자',
-                      value: `@${commentAuthor}`,
-                      inline: true
-                    },
-                    {
-                      name: '레포',
-                      value: trimmedRepository,
-                      inline: true
-                    },
-                    {
-                      name: '이슈 링크',
-                      value: trimmedIssueUrl,
-                      inline: false
-                    },
-                    {
-                      name: '댓글 내용',
-                      value: trimmedBody,
-                      inline: false
-                    }
-                  ],
-                  timestamp: comment.created_at
+                  title: truncate(`#${issue.number} ${issue.title}`, 250),
+                  url: targetUrl,
+                  color: action === 'closed' ? 10038562 : 5814783,
+                  fields,
+                  timestamp: new Date().toISOString()
                 }
               ]
             };
