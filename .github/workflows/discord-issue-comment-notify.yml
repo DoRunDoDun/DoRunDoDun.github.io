@@ -9,6 +9,11 @@ on:
     types:
       - created
   workflow_run:
+    workflows:
+      - CI/CD
+      - Prompt Regression
+      - Deploy to GitHub Pages
+      - 이슈 생성 시 Project 자동 연동
     types:
       - completed
 
@@ -113,7 +118,7 @@ jobs:
                   },
                   {
                     name: '커밋',
-                    value: `\`${(run.head_sha || '').slice(0, 7)}\`\`,
+                    value: (run.head_sha || '').slice(0, 7),
                     inline: true
                   },
                   {
