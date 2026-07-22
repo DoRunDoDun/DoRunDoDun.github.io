@@ -27,6 +27,17 @@ export const members = [
   },
 ]
 
+export const acknowledgements = [
+  {
+    name: '고명성',
+    github: 'https://github.com/thingk0',
+    email: 'audtjd9080@naver.com',
+    role: '초기 멤버',
+    bio: 'AI 시대의 새로운 가능성을 탐구하며,\n실질적인 문제 해결을 위한 지능형 에이전트 개발에 집중합니다.',
+    contribution: '초기 AI 기능 구현 · DoRunDoDun 로고 제작',
+  },
+]
+
 export const history = [
   {
     date: '2026.02.13',
