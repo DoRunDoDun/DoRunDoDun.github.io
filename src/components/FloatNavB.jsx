@@ -6,7 +6,8 @@ const sections = [
   { id: 'history',  label: '히스토리', num: '02' },
   { id: 'members',  label: '팀원',    num: '03' },
   { id: 'projects', label: '프로젝트', num: '04' },
-  { id: 'contact',  label: '연락처',   num: '05' },
+  { id: 'acknowledgements', label: 'Thanks to', mobileLabel: '감사', num: '05' },
+  { id: 'contact',  label: '연락처',   num: '06' },
 ]
 
 const HANDLE_W = 40
@@ -50,7 +51,7 @@ export default function FloatNavB() {
         padding: '0.6rem 0.5rem',
         paddingBottom: 'calc(0.6rem + env(safe-area-inset-bottom))',
       }}>
-        {sections.map(({ id, label }) => {
+        {sections.map(({ id, label, mobileLabel = label }) => {
           const isActive = active === id
           return (
             <a
@@ -83,7 +84,7 @@ export default function FloatNavB() {
                 letterSpacing: '0.01em',
                 whiteSpace: 'nowrap',
               }}>
-                {label}
+                {mobileLabel}
               </span>
             </a>
           )

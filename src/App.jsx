@@ -5,6 +5,7 @@ import Members from './components/Members'
 import Projects from './components/Projects'
 import History from './components/History'
 import Contact from './components/Contact'
+import Acknowledgements from './components/Acknowledgements'
 import logoSrc from '/logo.png'
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
         <History />
         <Members />
         <Projects />
+        <Acknowledgements />
         <Contact />
       </main>
       <footer style={{
