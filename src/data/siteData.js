@@ -18,14 +18,6 @@ export const members = [
     email: 'tkddu1591@gmail.com',
   },
   {
-    name: '고명성',
-    role: 'AI Agent Developer',
-    bio: 'AI 시대의 새로운 가능성을 탐구하며,\n실질적인 문제 해결을 위한\n지능형 에이전트 개발에 집중합니다.',
-    avatar: 'https://avatars.githubusercontent.com/u/75971566?v=4',
-    github: 'https://github.com/thingk0',
-    email: 'audtjd9080@naver.com',
-  },
-  {
     name: '당현아',
     role: 'Backend Developer',
     bio: '장기 운영과 가독성을 기준으로 코드를 설계하며,\n팀 전체가 신뢰할 수 있는\n백엔드 구조를 만드는 데 집중합니다.',
